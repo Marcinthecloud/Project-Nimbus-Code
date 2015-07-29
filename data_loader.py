@@ -62,12 +62,9 @@ def connect(seeds, keyspace, datacenter=None, port=9042):
 def worker(ninserts, threadnum, queue):
     # get connection
     connection = connect(SEED_NODES, keyspace=KEYSPACE, datacenter=DATACENTER)
-    preparedstmt_albertsons = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
-    preparedstmt_aldi = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
-    preparedstmt_kroger = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
+    preparedstmt_albertsons = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    preparedstmt_aldi = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    preparedstmt_kroger = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
     preparedstmt_albertsons.consistency_level=CONSISTENCY
     preparedstmt_aldi.consistency_level=CONSISTENCY
     preparedstmt_kroger.consistency_level=CONSISTENCY
@@ -86,11 +83,11 @@ def worker(ninserts, threadnum, queue):
         for i in xrange(ni):
             start_ins_time = datetime.datetime.now()
             connection.execute(preparedstmt_albertsons, ('Albertsons', random.choice(chain_albertsons), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000)))
+                                                         datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000)))
             connection.execute(preparedstmt_aldi, ('Aldi', random.choice(chain_albertsons), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000)))
+                                                         datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000)))
             connection.execute(preparedstmt_kroger, ('Kroger', random.choice(chain_albertsons), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000)))
+                                                         datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000)))
             stop_ins_time = datetime.datetime.now()
             insert_time = (stop_ins_time - start_ins_time).total_seconds()
             total_insert_time += insert_time
@@ -106,12 +103,9 @@ def worker(ninserts, threadnum, queue):
 def concurrent_worker(ninserts, threadnum, queue):
     # get connection
     connection = connect(SEED_NODES, keyspace=KEYSPACE, datacenter=DATACENTER)
-    preparedstmt_albertsons = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
-    preparedstmt_aldi = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
-    preparedstmt_kroger = connection.prepare("""INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,"
-                                      amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)""")
+    preparedstmt_albertsons = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    preparedstmt_aldi = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    preparedstmt_kroger = connection.prepare("INSERT INTO tx_details_raw (super_chain, chain, merchant, tx_time, settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
 
     preparedstmt_albertsons.consistency_level=CONSISTENCY
     preparedstmt_aldi.consistency_level=CONSISTENCY
@@ -130,12 +124,12 @@ def concurrent_worker(ninserts, threadnum, queue):
         # make 2 to 9 inserts for this sernum
         statements_and_params = []
         for i in xrange(random.randint(2,9)):
-            statements_and_params.append([preparedstmt_albertsons, ('Albertsons', random.choice(chain_albertsons), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000))])
+            # tx_details_raw                                        (super_chain, chain,                            merchant,               tx_time,                settle_time,amount, terminal_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            statements_and_params.append([preparedstmt_albertsons, ('Albertsons', random.choice(chain_albertsons), random.choice(merchant), datetime.datetime.utcnow(),datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000))])
             statements_and_params.append([preparedstmt_aldi, ('Aldi', random.choice(chain_aldi), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000))])
+                                                         datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000))])
             statements_and_params.append([preparedstmt_kroger, ('Kroger', random.choice(chain_kroger), random.choice(merchant), datetime.datetime.utcnow(),
-                                                         datetime.datetime.utcnow(), random.random((.1, 10000), 2), random.randint(1,100000000))])
+                                                         datetime.datetime.utcnow(), round(random.uniform(.1, 10000), 2), random.randint(1,100000000))])
 
         start_ins_time = datetime.datetime.now()
         execute_concurrent(connection, statements_and_params)

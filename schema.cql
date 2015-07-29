@@ -14,10 +14,21 @@ CREATE TABLE tx_details_raw (
 PRIMARY KEY((super_chain, chain), merchant, tx_time)
 );
 
+CREATE TABLE tx_details_raw (
+    super_chain text,
+    chain text,
+    merchant text,
+    tx_time timestamp,
+    settle_time timestamp,
+    amount double,
+    terminal_id bigint,
+PRIMARY KEY((super_chain, chain), merchant, tx_time)
+);
+
 --Pre aggregated roll up example
 --This table, similar to the above, will contain pre aggregated values for easy visualization.
 
-CREATE TABLE tx_details_raw (
+CREATE TABLE tx_details_raw_rollups (
     super_chain text,
     chain text,
     merchant text,
