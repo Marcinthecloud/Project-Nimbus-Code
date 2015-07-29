@@ -3,6 +3,7 @@ from multiprocessing import Process, Queue
 from cassandra import ConsistencyLevel
 from cassandra.query import SimpleStatement
 from cassandra.concurrent import execute_concurrent
+
 import cassandra
 import sys
 import random
@@ -14,7 +15,7 @@ import collections
 
 KEYSPACE = 'test'
 CONSISTENCY=ConsistencyLevel.LOCAL_ONE
-SEED_NODES = ['localhost']
+SEED_NODES = ['127.0.0.1']
 DATACENTER = None
 
 
@@ -48,7 +49,8 @@ def connect(seeds, keyspace, datacenter=None, port=9042):
                       port=port,
                       default_retry_policy=CustomRetryPolicy(),
                       reconnection_policy=ExponentialReconnectionPolicy(1, 60),
-                      load_balancing_policy=load_balancing_policy)
+                      load_balancing_policy=load_balancing_policy,
+                      protocol_version=3)
 
     cluster.connection_class = LibevConnection
     cluster.connection_class = LibevConnection
